@@ -1,29 +1,29 @@
 package qu.cipherr.QServer.Utils;
 
 public class Response {
-    private ResponseGenerator responseGenerator;
-
-    public Response() {
-        this.responseGenerator = new ResponseGenerator();
-    }
-
-    public ResponseGenerator getResponseGenerator() {
-        return responseGenerator;
-    }
+    private String status;
+    private String contentType;
+    private String responseBody;
 
     public void setStatus(String status) {
-        this.responseGenerator.setStatus(status);
+        this.status = status;
     }
 
     public void setContentType(String contentType) {
-        this.responseGenerator.setContentType(contentType);
+        this.contentType = contentType;
     }
 
     public void setResponseBody(String responseBody) {
-        this.responseGenerator.setResponseBody(responseBody);
+        this.responseBody = responseBody;
     }
 
     public String generate() {
-        return this.responseGenerator.generate();
+        StringBuilder response = new StringBuilder();
+        response.append(status).append("\r\n");
+        response.append("Content-Type: ").append(contentType).append("\r\n");
+        response.append("Content-Length: ").append(responseBody.length()).append("\r\n");
+        response.append("\r\n");
+        response.append(responseBody);
+        return response.toString();
     }
 }
