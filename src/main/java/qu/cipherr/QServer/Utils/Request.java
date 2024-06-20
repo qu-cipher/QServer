@@ -1,4 +1,4 @@
-package qu.cipherr.QServer.Extra;
+package qu.cipherr.QServer.Util;
 
 public class Request {
 
