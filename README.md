@@ -6,4 +6,4 @@ QuantumServer (QServer) is a HTTP server coded using java by @qu-cipher
 * Added & Edited file `Response.java`
 * Edited `Server.java` + performed
 * Chenged `Handlers` class to `Handler` + performed
-* Removed `RequestType.java`
+* Removed `RequestType.java` file/class
