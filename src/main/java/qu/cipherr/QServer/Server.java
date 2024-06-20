@@ -2,17 +2,16 @@ package qu.cipherr.QServer;
 
 import java.io.*;
 import java.net.*;
-
+import qu.cipherr.QServer.Extra.*;
 import qu.cipherr.QServer.Utils.*;
 
 /**
  * Represents a basic HTTP server that handles incoming client requests.
  */
 public class Server {
-    // private HashMap<String, String> serverCredentials = new HashMap<>();
     private int port = 12345;
     private boolean debug = false;
-    private Handlers handler;
+    private Handler handler;
 
     /**
      * Constructs a server instance with a specified port and debug mode.
@@ -23,19 +22,13 @@ public class Server {
     public Server(int port, boolean debugMode) {
         if (port > 65535) {
             Logger.warn("Port number is greater than `65535`! Using the default port number (12345)");
-
             this.port = 12345;
-            this.debug = debugMode;
-
-            Logger.in("Port set to `12345` and debug mode is `" + debugMode + "`");
         } else {
             this.port = port;
-            this.debug = debugMode;
-
-            Logger.in("Port set to " + port + " and debug mode is " + debugMode);
         }
-
-        handler = new Handlers() {};
+        this.debug = debugMode;
+        Logger.in("Port set to " + this.port + " and debug mode is " + this.debug);
+        this.handler = new Handler() {}; // Default handler which does nothing
     }
 
     /**
@@ -43,7 +36,7 @@ public class Server {
      *
      * @param handler The custom request handler implementing the Handlers interface.
      */
-    public void setHandler(Handlers handler) {
+    public void setHandler(Handler handler) {
         this.handler = handler;
     }
 
@@ -52,59 +45,71 @@ public class Server {
      * This method blocks until an exception occurs or the server is shut down.
      */
     public void start() {
-        if (debug) Logger.debug("Debug mode is ON"); // Check debug mode
+        if (debug) Logger.debug("Debug mode is ON");
 
-        try (ServerSocket serverSocket = new ServerSocket(port)) { // Create server socket
-            Logger.in("Server listening on port " + port + "..."); // Log server start
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            Logger.in("Server listening on port " + port + "...");
 
             while (true) {
-                Socket clientSocket = serverSocket.accept(); // Accept client connections
-                if (handler.acceptsClient(clientSocket)) { // Check if client is accepted
-                    InputStreamReader isr = new InputStreamReader(clientSocket.getInputStream());
-                    BufferedReader in = new BufferedReader(isr);
-
-                    String requestLine = in.readLine(); // Read the request line
-                    if (requestLine != null && !requestLine.isEmpty()) {
-                        String[] parts = requestLine.split(" ");
-                        if (parts.length > 1) {
-                            String method = parts[0]; // Extract HTTP method
-                            String path = parts[1]; // Extract request path
-                            Response response = new Response(); // Create a response object
-
-                            // Call appropriate handler method based on HTTP method
-                            switch (method) {
-                                case "GET":
-                                    if (debug) Logger.debug("Handling GET request for path: " + path);
-                                    handler.handleGet(path, response);
-                                    break;
-                                case "POST":
-                                    if (debug) Logger.debug("Handling POST request for path: " + path);
-                                    handler.handlePost(path, response);
-                                    break;
-                                case "PUT":
-                                    if (debug) Logger.debug("Handling PUT request for path: " + path);
-                                    handler.handlePut(path, response);
-                                    break;
-                                case "DELETE":
-                                    if (debug) Logger.debug("Handling DELETE request for path: " + path);
-                                    handler.handleDelete(path, response);
-                                    break;
-                                default:
-                                    Logger.warn("Unsupported HTTP method: " + method);
-                                    response.setStatus("HTTP/1.1 405 Method Not Allowed");
-                                    response.setResponseBody("<html><body><h1>Method Not Allowed</h1></body></html>");
-                                    break;
-                            }
-
-                            String responseData = response.generate(); // Generate the response
-                            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true); // Send the response
-                            out.println(responseData);
-                        }
+                try {
+                    Socket clientSocket = serverSocket.accept();
+                    if (handler.acceptsClient(clientSocket)) {
+                        handleClient(clientSocket);
                     }
+                    clientSocket.close();
+                } catch (IOException e) {
+                    Logger.err("Error handling client: " + e.getMessage());
                 }
             }
-        } catch (IOException e) { // Error handling
-            Logger.err(e.getMessage() + " : " + e.getCause());
+        } catch (IOException e) {
+            Logger.err("Server error: " + e.getMessage() + " : " + e.getCause());
+        }
+    }
+
+    private void handleClient(Socket clientSocket) {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
+
+            String requestLine = in.readLine();
+            if (requestLine == null || requestLine.isEmpty()) {
+                return;
+            }
+
+            String method = Request.getType(requestLine);
+            String path = Request.getPath(requestLine);
+            if (debug) Logger.debug("Received request: " + method + " " + path);
+
+            Response result;
+            switch (method) {
+                case "GET":
+                    if (debug) Logger.debug("Handling GET request for path: " + path);
+                    result = handler.handleGet(path);
+                    break;
+                case "POST":
+                    if (debug) Logger.debug("Handling POST request for path: " + path);
+                    result = handler.handlePost(path);
+                    break;
+                case "PUT":
+                    if (debug) Logger.debug("Handling PUT request for path: " + path);
+                    result = handler.handlePut(path);
+                    break;
+                case "DELETE":
+                    if (debug) Logger.debug("Handling DELETE request for path: " + path);
+                    result = handler.handleDelete(path);
+                    break;
+                default:
+                    Logger.warn("Unsupported HTTP method: " + method);
+                    result = new Response();
+                    result.setStatus(HttpStatus.METHOD_NOT_ALLOWED);
+                    result.setContentType(HttpContentTypes.TEXT_HTML);
+                    result.setResponseBody("<html><body><h1>Method not allowed</h1></body></html>");
+                    break;
+            }
+
+            out.println(result.generate());
+
+        } catch (IOException e) {
+            Logger.err("Error reading request: " + e.getMessage());
         }
     }
 }
