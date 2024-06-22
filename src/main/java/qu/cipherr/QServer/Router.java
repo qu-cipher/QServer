@@ -4,9 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import qu.cipherr.QServer.Extra.*;
-import qu.cipherr.QServer.Objects.Request;
-import qu.cipherr.QServer.Objects.Response;
-import qu.cipherr.QServer.Objects.Route;
+import qu.cipherr.QServer.Objects.*;
 import qu.cipherr.QServer.Utils.*;
 import qu.cipherr.QServer.Interfaces.*;
 
