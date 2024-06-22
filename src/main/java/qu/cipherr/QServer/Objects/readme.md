@@ -1,9 +1,14 @@
 # Route
 ## Usage
 The `Route` class is for creating Routes (= paths) and handling them through your handler class.
-### Parameters:
+## Parameters:
 * Path : String ("/" or "/path")
 * handler : [Handler](https://github.com/qu-cipher/QServer/blob/main/src/main/java/qu/cipherr/QServer/Interfaces/Handler.java)
+## Example
+```java
+MyHandler h = new MyHandler(); // The handler class
+Route route = new Route("/path", h); // The route class
+```
 
 #
 
