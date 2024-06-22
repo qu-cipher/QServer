@@ -14,7 +14,7 @@ Route route = new Route("/path", h); // The route class
 public class MyHandler implements Handler {
     @Override
     public boolean acceptsClient(Socket clientSocket) {
-        return true;
+        return false;
     }
 
     @Override
@@ -28,24 +28,28 @@ public class MyHandler implements Handler {
 
     @Override
     public Response handlePost() {
-        return handleUnsupportedMethod();
+        Response response = new Response();
+        response.setStatus(HttpStatus.OK);
+        response.setContentType(HttpContentTypes.TEXT_HTML);
+        response.setResponseBody("<html><body><h1>POST Handled for /</h1></body></html>");
+        return response;
     }
 
     @Override
     public Response handlePut() {
-        return handleUnsupportedMethod();
+        Response response = new Response();
+        response.setStatus(HttpStatus.OK);
+        response.setContentType(HttpContentTypes.TEXT_HTML);
+        response.setResponseBody("<html><body><h1>PUT Handled for /</h1></body></html>");
+        return response;
     }
 
     @Override
     public Response handleDelete() {
-        return handleUnsupportedMethod();
-    }
-
-    private Response handleUnsupportedMethod() {
         Response response = new Response();
-        response.setStatus(HttpStatus.METHOD_NOT_ALLOWED);
+        response.setStatus(HttpStatus.OK);
         response.setContentType(HttpContentTypes.TEXT_HTML);
-        response.setResponseBody("<html><body><h1>Method not allowed</h1></body></html>");
+        response.setResponseBody("<html><body><h1>DELETE Handled for /</h1></body></html>");
         return response;
     }
 }
