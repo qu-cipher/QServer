@@ -4,8 +4,7 @@ QuantumServer (QServer) is a HTTP server coded using java by @qu-cipher
 # Source Code version: 0.0.5-beta
 
 ## Usage
-
-* 1. Initializing
+1. Initializing
 
 ```java
 import qu.cipherr.QServer.Router;
