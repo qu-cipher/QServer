@@ -3,7 +3,7 @@
 The `Route` class is for creating Routes (= paths) and handling them through your handler class.
 ### Parameters:
 * Path : String ("/" or "/path")
-* handler : Handler  
+* handler : [Handler](https://github.com/qu-cipher/QServer/blob/main/src/main/java/qu/cipherr/QServer/Interfaces/Handler.java)
 
 #
 
