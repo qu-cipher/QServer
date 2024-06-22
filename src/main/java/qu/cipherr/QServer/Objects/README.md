@@ -53,5 +53,5 @@ public class MyHandler implements Handler {
 * Route creation:
 ```java
 MyHandler handle = new MyHandler();
-Route route = new Route("/path", asghar);
+Route route = new Route("/path", handle);
 ```
