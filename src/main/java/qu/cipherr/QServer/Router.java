@@ -51,9 +51,10 @@ public class Router {
         if (debug) Logger.debug("Debug mode is ON");
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
+            if (debug) Logger.debug("Server socket created!");
             Logger.in("Router listening on port " + port + "...");
 
-            while (true) {
+            do {
                 try {
                     Socket clientSocket = serverSocket.accept();
                     handleClient(clientSocket);
@@ -61,7 +62,7 @@ public class Router {
                 } catch (IOException e) {
                     Logger.err("Error handling client: " + e.getMessage());
                 }
-            }
+            } while (1==1);
         } catch (IOException e) {
             Logger.err("Router error: " + e.getMessage() + " : " + e.getCause());
         }
@@ -78,13 +79,14 @@ public class Router {
 
             String method = Request.getType(requestLine);
             String path = Request.getPath(requestLine);
+
             if (debug) Logger.debug("Received request: " + method + " " + path);
 
             Route route = findRouteByPath(path);
             Response result;
             if (route != null) {
                 Handler handler = route.getHandler();
-                result = handleRequest(handler, method);
+                result = handleRequest(handler, method, clientSocket);
             } else {
                 Logger.warn("No route found for path: " + path);
                 result = new Response();
@@ -109,7 +111,15 @@ public class Router {
         return null;
     }
 
-    private Response handleRequest(Handler handler, String method) {
+    private Response handleRequest(Handler handler, String method, Socket client) {
+        if (!handler.acceptsClient(client)) {
+            Response response = new Response();
+            response.setStatus(HttpStatus.FORBIDDEN);
+            response.setContentType(HttpContentTypes.TEXT_HTML);
+            response.setResponseBody("<html><body><h1>Forbidden</h1></body></html>");
+            return response;
+        }
+
         switch (method) {
             case "GET":
                 if (debug) Logger.debug("Handling GET request");
