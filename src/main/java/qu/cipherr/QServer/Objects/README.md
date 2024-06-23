@@ -64,3 +64,13 @@ For creating asset paths
 ```java
 MediaRoute mediaRoute = new MediaRoute("/favicon.ico", new File("/path/to/file.png"), HttpContentTypes.IMAGE_PNG); // Can be other types
 ```
+
+-----
+
+## For adding routes/media-routes to Router, you can use the `addRoute()` and `addMediaRoute()` methods:
+```java
+Router s = new Router(1025, true);
+s.addRoute(route);
+s.addMediaRoute(mediaRoute);
+s.start();
+```
