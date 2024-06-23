@@ -4,7 +4,6 @@ For creating routes
 ```java
 Route route = new Route("/", new MyHandler());
 ```
-----
 MyHandler.java:
 ```java
 import qu.cipherr.QServer.Extra.HttpContentTypes;
