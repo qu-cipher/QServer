@@ -33,6 +33,7 @@ public class MyAwesomeApp{
         Route route = new Route("/path", h); // The route class
 
         Router s = new Router(1025, true, new Route("/", new MyOtherHandler()), route);
+//      s.addRoute(route) // same
         s.start();
     }
 }
